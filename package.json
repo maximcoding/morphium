@@ -1,0 +1,48 @@
+{
+  "name": "morphium",
+  "version": "1.0.0",
+  "description": "A universal library for data formatting and transformations.",
+  "main": "dist/morphium.ts",
+  "types": "dist/morphium.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "train:models": "python scripts/train_models.py",
+    "train:monitor": "tensorboard --logdir=logs",
+    "upload:models": "npx ts-node scripts/uploadToS3.ts",
+    "generate-data": "python3 scripts/synthetic-data-generator/main.py",
+    "setup-env": "bash scripts/setup_env.sh",
+    "tensorboard": "tensorboard --logdir=logs",
+    "test": "jest"
+  },
+  "keywords": [
+    "data-transform",
+    "phone-numbers",
+    "currency",
+    "validation",
+    "AI",
+    "formatting"
+  ],
+  "author": "Max Liv",
+  "license": "MIT",
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.21.0",
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "aws-sdk": "^2.1692.0",
+    "axios": "^1.7.9",
+    "crypto": "^1.0.1",
+    "fs": "^0.0.1-security",
+    "google-libphonenumber": "^3.2.0",
+    "jwt-decode": "^4.0.0",
+    "libphonenumber-js": "^1.11.11",
+    "maxmind": "^4.3.22",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.4",
+    "@types/jest": "^27.5.2",
+    "@types/maxmind": "^2.0.5",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.5",
+    "typescript": "^4.5.0"
+  }
+}

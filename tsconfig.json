@@ -1,0 +1,44 @@
+{
+  "name": "morphium",
+  "version": "1.0.0",
+  "description": "A universal library for data transformations such as phone numbers and currency formatting.",
+  "main": "dist/morphium.js",
+  "types": "dist/morphium.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "sourceMap": true,
+    "skipLibCheck": true
+  },
+  "include": ["src", "tests"],
+  "typeRoots": [
+    "./node_modules/@types"
+  ],
+  "keywords": [
+    "data-transform",
+    "phone-numbers",
+    "currency",
+    "validation",
+    "AI",
+    "formatting"
+  ],
+  "author": "Max Liv",
+  "license": "MIT",
+  "dependencies": {
+    "google-libphonenumber": "^3.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.0",
+    "jest": "^27.0.0",
+    "ts-jest": "^27.0.0",
+    "@types/jest": "^27.0.0"
+  }
+}
