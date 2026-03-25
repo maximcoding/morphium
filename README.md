@@ -1,160 +1,219 @@
-
 # Morphium
 
-**Morphium** is a powerful phone number transformation library designed to provide advanced features such as:
+**Morphium** is a TypeScript library for formatting, masking, and protecting phone numbers in Node.js applications.
 
-- **Phone Number Masking**: Mask phone numbers with custom characters while revealing specific parts.
-- **Region-Based Formatting**: Format phone numbers based on regional standards (e.g., US, EU, etc.).
-- **Encryption**: Secure phone numbers with AES-256-CBC encryption.
-- **Role-Based Masking**: Customize masking based on user roles (e.g., support vs. admin) with JWT token support.
-- **AI-Driven Masking**: Use machine learning to apply masking based on the sensitivity of phone numbers.
-- **Geolocation-Based Masking**: Apply stricter masking if the user's IP comes from a high-risk region.
+It is designed for products that need to balance **privacy**, **usability**, and **operational access**. Use it to safely display phone numbers, apply regional formatting, control visibility by role, and add advanced masking behavior when needed.
+
+## Why Morphium?
+
+Phone numbers show up everywhere: admin tools, support dashboards, CRMs, onboarding flows, fraud systems, and internal operations panels.
+
+Most teams end up solving the same problems repeatedly:
+
+- reveal only the last few digits
+- keep formatting readable
+- apply stricter visibility for non-admin roles
+- encrypt sensitive values before storage or display
+- add smarter rules based on context, region, or risk signals
+
+Morphium brings these workflows into one library so you can move faster and keep sensitive data safer.
+
+---
 
 ## Features
 
-- **Masking**: Hide portions of phone numbers while revealing specific parts.
-- **Region-Based Formatting**: Format phone numbers according to regional standards.
-- **Role-Based Masking**: Show different parts of phone numbers based on user roles.
-- **AES-256-CBC Encryption**: Secure phone numbers using strong encryption.
-- **AI-Powered Sensitivity Masking**: Dynamically adjust the level of masking based on AI predictions.
-- **Geolocation-Based Masking**: Stricter masking for users from high-risk regions based on IP.
+### Core capabilities
+
+- **Phone number masking**  
+  Mask phone numbers while revealing only the digits you choose.
+
+- **Region-based formatting**  
+  Format phone numbers using common standards such as `E164`, `INTERNATIONAL`, `NATIONAL`, and `RFC3966`.
+
+- **Role-based visibility**  
+  Show different levels of phone number visibility based on user role.
+
+- **AES-256-CBC encryption**  
+  Encrypt phone numbers before masking or storage.
+
+- **Custom masking patterns**  
+  Use configurable characters and regex-based rules.
+
+- **Formatting preservation**  
+  Keep spaces, dashes, and other separators when masking values.
+
+### Advanced capabilities
+
+- **JWT-aware role masking**  
+  Support visibility rules using token-based access control.
+
+- **Adaptive sensitivity masking**  
+  Adjust masking behavior dynamically based on sensitivity rules.
+
+- **Geolocation-aware masking**  
+  Apply stricter masking rules for requests from high-risk regions.
+
+- **Anomaly and fraud signals**  
+  Extend masking logic with detection-based workflows.
+
+- **Custom hooks**  
+  Add logic before validation, after validation, or when formatting changes.
+
+---
 
 ## Installation
 
-To install **Morphium**, follow these steps:
-
-1. **Install the library dependencies**:
+### Install from npm
 
 ```bash
+npm install morphium
+````
+
+### Install from source
+
+```bash
+git clone https://github.com/maximcoding/morphium.git
+cd morphium
 npm install
+npm run build
 ```
 
-2. **Clone or include the Morphium code** in your project directory.
+> If you are working directly from source, you may need to adjust import paths to match your local file structure until the package entrypoint is finalized.
 
-```bash
-git clone https://github.com/your-repo/morphium-service.git
-```
+---
 
-3. **Ensure TypeScript and Jest are installed** (for TypeScript support and testing):
+## Quick Start
 
-```bash
-npm install typescript ts-jest @types/jest --save-dev
+```ts
+import { MorphiumService } from "morphium";
+
+(async () => {
+  const morphium = new MorphiumService();
+
+  const masked = await morphium.transformPhoneNumber("+1234567890", {
+    maskChar: "*",
+    revealEndDigits: 4,
+  });
+
+  console.log(masked);
+  // Example output: ******7890
+})();
 ```
 
 ---
 
-## How to Use
+## Basic Usage
 
-### Basic Setup
+### 1) Mask a phone number
 
-In your project, import and use **Morphium** to perform various phone number transformations such as masking, encryption, and role-based masking.
-
-### Example 1: Basic Phone Number Masking
-
-This example shows how to mask a phone number while revealing the last 4 digits.
-
-```typescript
-import { MorphiumService } from './services/morphium.service';
+```ts
+import { MorphiumService } from "morphium";
 
 (async () => {
-  const morphiumService = new MorphiumService();
-  const phoneNumber = '+1234567890';
+  const morphium = new MorphiumService();
+  const phoneNumber = "+1234567890";
 
-  const options = {
-    maskChar: '*',
-    revealEndDigits: 4,  // Reveal the last 4 digits
-  };
-
-  const maskedNumber = await morphiumService.transformPhoneNumber(phoneNumber, options);
-  console.log(maskedNumber);  // Output: ******7890
-})();
-```
-
-### Example 2: Masking with AES-256 Encryption
-
-You can encrypt the phone number before masking it, ensuring additional security.
-
-```typescript
-import { MorphiumService } from './services/morphium.service';
-
-(async () => {
-  const morphiumService = new MorphiumService();
-  const phoneNumber = '+1234567890';
-
-  const options = {
-    encrypt: true,  // Enable encryption
-    maskChar: '*',
+  const maskedNumber = await morphium.transformPhoneNumber(phoneNumber, {
+    maskChar: "*",
     revealEndDigits: 4,
-  };
+  });
 
-  const encryptedMaskedNumber = await morphiumService.transformPhoneNumber(phoneNumber, options);
-  console.log(encryptedMaskedNumber);  // Output: Encrypted and masked phone number
+  console.log(maskedNumber);
 })();
 ```
 
-### Example 3: Role-Based Masking Using JWT
+### 2) Preserve formatting while masking
 
-This example demonstrates role-based masking using JWT tokens. For example, support staff may see only the last 4 digits, while admins see the entire phone number.
-
-```typescript
-import { MorphiumService } from './services/morphium.service';
+```ts
+import { MorphiumService } from "morphium";
 
 (async () => {
-  const morphiumService = new MorphiumService();
-  const phoneNumber = '+1234567890';
+  const morphium = new MorphiumService();
+  const phoneNumber = "+1 (234) 567-8900";
 
-  const options = {
-    maskChar: '*',
-    role: 'support',  // Set role to 'support'
+  const result = await morphium.transformPhoneNumber(phoneNumber, {
+    maskChar: "*",
     revealEndDigits: 4,
-    token: 'YOUR_JWT_TOKEN',  // JWT token for role verification
-  };
+    preserveFormatting: true,
+  });
 
-  const roleBasedMaskedNumber = await morphiumService.transformPhoneNumber(phoneNumber, options);
-  console.log(roleBasedMaskedNumber);  // Output: Role-based masked number
+  console.log(result);
 })();
 ```
 
-### Example 4: AI-Driven Masking Based on Sensitivity
+### 3) Encrypt before masking
 
-Use AI to dynamically adjust masking based on the sensitivity of the phone number.
-
-```typescript
-import { MorphiumService } from './services/morphium.service';
+```ts
+import { MorphiumService } from "morphium";
 
 (async () => {
-  const morphiumService = new MorphiumService();
-  const phoneNumber = '+1234567890';
+  const morphium = new MorphiumService();
+  const phoneNumber = "+1234567890";
 
-  const options = {
-    adaptiveSensitivity: true,  // Enable AI-driven sensitivity
-  };
-
-  const aiMaskedNumber = await morphiumService.transformPhoneNumberWithAI(phoneNumber, options);
-  console.log(aiMaskedNumber);  // Output: AI-driven masked phone number
-})();
-```
-
-### Example 5: Region-Based Formatting
-
-You can format a phone number based on its region, using regional standards like E164, National, or International formats.
-
-```typescript
-import { MorphiumService } from './services/morphium.service';
-
-(async () => {
-  const morphiumService = new MorphiumService();
-  const phoneNumber = '+1234567890';
-
-  const options = {
-    region: 'US',  // Format based on US standards
-    format: 'INTERNATIONAL',  // International format
-    maskChar: '*',
+  const encryptedMasked = await morphium.transformPhoneNumber(phoneNumber, {
+    encrypt: true,
+    maskChar: "*",
     revealEndDigits: 4,
-  };
+  });
 
-  const formattedMaskedNumber = await morphiumService.transformPhoneNumber(phoneNumber, options);
-  console.log(formattedMaskedNumber);  // Output: Masked and regionally formatted phone number
+  console.log(encryptedMasked);
+})();
+```
+
+### 4) Role-based masking
+
+```ts
+import { MorphiumService } from "morphium";
+
+(async () => {
+  const morphium = new MorphiumService();
+  const phoneNumber = "+1234567890";
+
+  const supportView = await morphium.transformPhoneNumber(phoneNumber, {
+    role: "support",
+    maskChar: "*",
+    revealEndDigits: 4,
+    token: "YOUR_JWT_TOKEN",
+  });
+
+  console.log(supportView);
+})();
+```
+
+### 5) Region-based formatting
+
+```ts
+import { MorphiumService } from "morphium";
+
+(async () => {
+  const morphium = new MorphiumService();
+  const phoneNumber = "+1234567890";
+
+  const formatted = await morphium.transformPhoneNumber(phoneNumber, {
+    region: "US",
+    format: "INTERNATIONAL",
+    maskChar: "*",
+    revealEndDigits: 4,
+  });
+
+  console.log(formatted);
+})();
+```
+
+### 6) AI-driven masking
+
+```ts
+import { MorphiumService } from "morphium";
+
+(async () => {
+  const morphium = new MorphiumService();
+  const phoneNumber = "+1234567890";
+
+  const result = await morphium.transformPhoneNumberWithAI(phoneNumber, {
+    adaptiveSensitivity: true,
+  });
+
+  console.log(result);
 })();
 ```
 
@@ -162,273 +221,208 @@ import { MorphiumService } from './services/morphium.service';
 
 ## API
 
-### Morphium Methods
+## `MorphiumService`
 
-#### `transformPhoneNumber(phoneNumber: string, options: MaskingOptions): Promise<string>`
+### `transformPhoneNumber(phoneNumber: string, options: MaskingOptions): Promise<string>`
 
-- **Description**: Transforms and masks the phone number based on the provided options.
-- **Parameters**:
-  - `phoneNumber`: The phone number to mask/transform.
-  - `options`: An object defining how to mask, format, or encrypt the phone number.
-- **Returns**: A `Promise` that resolves to the masked/formatted/encrypted phone number.
+Transforms a phone number using the options you provide.
 
-#### `transformPhoneNumberWithAI(phoneNumber: string, options: MaskingOptions): Promise<string>`
+Use this for:
 
-- **Description**: Uses AI to dynamically mask the phone number based on sensitivity analysis.
-- **Parameters**:
-  - `phoneNumber`: The phone number to mask.
-  - `options`: An object defining how the phone number should be masked based on AI sensitivity.
-- **Returns**: A `Promise` that resolves to the masked phone number.
+* masking
+* formatting
+* encryption
+* role-aware visibility
+* region-specific output
 
----
+#### Parameters
 
-## Options for Masking
+* `phoneNumber` — the input phone number
+* `options` — masking and formatting configuration
 
-The `MaskingOptions` interface provides a powerful and flexible configuration for masking phone numbers or sensitive data. It allows you to control how the data is masked, formatted, and displayed, supporting a wide range of advanced features, including role-based masking, geolocation-based rules, and AI-driven detection.
+#### Returns
 
----
-
-## Table of Contents
-
-- [Interface Overview](#interface-overview)
-- [Properties](#properties)
-  - [maskChar](#maskchar)
-  - [revealStartDigits](#revealstartdigits)
-  - [revealEndDigits](#revealenddigits)
-  - [preserveFormatting](#preserveformatting)
-  - [region](#region)
-  - [role](#role)
-  - [regexMaskPattern](#regexmaskpattern)
-  - [format](#format)
-  - [showFlag](#showflag)
-  - [encrypt](#encrypt)
-  - [smartMode](#smartmode)
-  - [customHooks](#customhooks)
-  - [ip](#ip)
-  - [token](#token)
-  - [adaptiveSensitivity](#adaptivesensitivity)
-  - [detectAnomaly](#detectanomaly)
-  - [detectFraud](#detectfraud)
-- [Example Usage](#example-usage)
+* `Promise<string>` — the transformed result
 
 ---
 
-## Interface Overview
+### `transformPhoneNumberWithAI(phoneNumber: string, options: MaskingOptions): Promise<string>`
 
-```typescript
+Transforms a phone number using adaptive or AI-assisted masking logic.
+
+Use this when you want masking behavior to respond to sensitivity or risk-related rules.
+
+#### Parameters
+
+* `phoneNumber` — the input phone number
+* `options` — AI-related masking configuration
+
+#### Returns
+
+* `Promise<string>` — the transformed result
+
+---
+
+## Configuration
+
+## `MaskingOptions`
+
+```ts
 export interface MaskingOptions {
-    maskChar?: string;
-    revealStartDigits?: number;
-    revealEndDigits?: number;
-    preserveFormatting?: boolean;
-    region?: string;
-    role?: string;
-    regexMaskPattern?: string;
-    format?: 'E164' | 'INTERNATIONAL' | 'NATIONAL' | 'RFC3966';
-    showFlag?: boolean;
-    encrypt?: boolean;
-    smartMode?: boolean;
-    customHooks?: {
-        preValidation?: Function;
-        postValidation?: Function;
-        onFormatChange?: Function;
-    };
-    ip?: string;
-    token?: string;
-    adaptiveSensitivity?: boolean;
-    detectAnomaly?: boolean;
-    detectFraud?: boolean;
+  maskChar?: string;
+  revealStartDigits?: number;
+  revealEndDigits?: number;
+  preserveFormatting?: boolean;
+  region?: string;
+  role?: string;
+  regexMaskPattern?: string;
+  format?: "E164" | "INTERNATIONAL" | "NATIONAL" | "RFC3966";
+  showFlag?: boolean;
+  encrypt?: boolean;
+  smartMode?: boolean;
+  customHooks?: {
+    preValidation?: Function;
+    postValidation?: Function;
+    onFormatChange?: Function;
+  };
+  ip?: string;
+  token?: string;
+  adaptiveSensitivity?: boolean;
+  detectAnomaly?: boolean;
+  detectFraud?: boolean;
 }
 ```
 
----
+### Option Reference
 
-## Properties
-
-### maskChar
-- **Type**: `string`
-- **Default**: `'*'`
-- **Description**: Character used for masking the hidden digits.
-- **Example**:
-  ```typescript
-  maskChar: '#'
-  ```
-
-### revealStartDigits
-- **Type**: `number`
-- **Description**: Number of digits to reveal at the start of the phone number.
-- **Example**:
-  ```typescript
-  revealStartDigits: 2
-  ```
-
-### revealEndDigits
-- **Type**: `number`
-- **Description**: Number of digits to reveal at the end of the phone number.
-- **Example**:
-  ```typescript
-  revealEndDigits: 4
-  ```
-
-### preserveFormatting
-- **Type**: `boolean`
-- **Default**: `false`
-- **Description**: Preserves original formatting (e.g., dashes, spaces).
-- **Example**:
-  ```typescript
-  preserveFormatting: true
-  ```
-
-### region
-- **Type**: `string`
-- **Description**: Region or country code for formatting (e.g., 'US', 'DE').
-- **Example**:
-  ```typescript
-  region: 'US'
-  ```
-
-### role
-- **Type**: `string`
-- **Description**: Role-based masking (e.g., 'admin', 'user') for different visibility rules.
-- **Example**:
-  ```typescript
-  role: 'admin'
-  ```
-
-### regexMaskPattern
-- **Type**: `string`
-- **Description**: Custom regex pattern for flexible masking rules.
-- **Example**:
-  ```typescript
-  regexMaskPattern: '\d{3}-\d{3}-\d{4}'
-  ```
-
-### format
-- **Type**: `'E164' | 'INTERNATIONAL' | 'NATIONAL' | 'RFC3966'`
-- **Description**: Format of the phone number output.
-- **Example**:
-  ```typescript
-  format: 'INTERNATIONAL'
-  ```
-
-### showFlag
-- **Type**: `boolean`
-- **Description**: Display country flag alongside the phone number.
-- **Example**:
-  ```typescript
-  showFlag: true
-  ```
-
-### encrypt
-- **Type**: `boolean`
-- **Description**: Encrypt the phone number before masking.
-- **Example**:
-  ```typescript
-  encrypt: true
-  ```
-
-### smartMode
-- **Type**: `boolean`
-- **Description**: Enables automatic correction and formatting.
-- **Example**:
-  ```typescript
-  smartMode: true
-  ```
-
-### customHooks
-- **Type**: `object`
-- **Description**: Custom hooks for extending validation and formatting.
-  - **preValidation**: Runs before validation.
-  - **postValidation**: Runs after validation.
-  - **onFormatChange**: Runs when format changes.
-- **Example**:
-  ```typescript
-  customHooks: {
-    preValidation: (num) => console.log('Pre-Validation:', num),
-    postValidation: (num) => console.log('Post-Validation:', num)
-  }
-  ```
-
-### ip
-- **Type**: `string`
-- **Description**: User's IP for geolocation-based masking rules.
-- **Example**:
-  ```typescript
-  ip: '192.168.1.1'
-  ```
-
-### token
-- **Type**: `string`
-- **Description**: JWT token for role-based visibility control.
-- **Example**:
-  ```typescript
-  token: 'eyJhbGciOi...'
-  ```
-
-### adaptiveSensitivity
-- **Type**: `boolean`
-- **Description**: AI-driven sensitivity adjustment for masking.
-- **Example**:
-  ```typescript
-  adaptiveSensitivity: true
-  ```
-
-### detectAnomaly
-- **Type**: `boolean`
-- **Description**: AI-powered anomaly detection for unusual patterns.
-- **Example**:
-  ```typescript
-  detectAnomaly: true
-  ```
-
-### detectFraud
-- **Type**: `boolean`
-- **Description**: Enables fraud detection to identify potential threats.
-- **Example**:
-  ```typescript
-  detectFraud: true
-  ```
+| Option                | Type                                                   | Description                                                                          |
+| --------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `maskChar`            | `string`                                               | Character used for masking hidden digits. Default is usually `*`.                    |
+| `revealStartDigits`   | `number`                                               | Number of digits to reveal at the beginning of the phone number.                     |
+| `revealEndDigits`     | `number`                                               | Number of digits to reveal at the end of the phone number.                           |
+| `preserveFormatting`  | `boolean`                                              | Keeps spaces, dashes, parentheses, and other separators intact.                      |
+| `region`              | `string`                                               | Region or country code used for parsing or formatting, such as `US` or `DE`.         |
+| `role`                | `string`                                               | Role name used to determine visibility rules, such as `admin`, `support`, or `user`. |
+| `regexMaskPattern`    | `string`                                               | Custom regex pattern for advanced masking logic.                                     |
+| `format`              | `"E164" \| "INTERNATIONAL" \| "NATIONAL" \| "RFC3966"` | Output format for the phone number.                                                  |
+| `showFlag`            | `boolean`                                              | Displays a country flag alongside the formatted number if supported.                 |
+| `encrypt`             | `boolean`                                              | Encrypts the phone number before returning or masking it.                            |
+| `smartMode`           | `boolean`                                              | Enables automatic correction or convenience behavior where supported.                |
+| `customHooks`         | `object`                                               | Lets you run logic before validation, after validation, or after formatting changes. |
+| `ip`                  | `string`                                               | IP address used for geolocation-aware masking decisions.                             |
+| `token`               | `string`                                               | JWT token used for role-based access logic.                                          |
+| `adaptiveSensitivity` | `boolean`                                              | Enables adaptive or AI-driven masking behavior.                                      |
+| `detectAnomaly`       | `boolean`                                              | Enables anomaly-related checks or extensions.                                        |
+| `detectFraud`         | `boolean`                                              | Enables fraud-related checks or extensions.                                          |
 
 ---
 
-## Example Usage
+## Example Configuration
 
-```typescript
-const options: MaskingOptions = {
-  maskChar: '*',
+```ts
+const options = {
+  maskChar: "*",
   revealStartDigits: 2,
   revealEndDigits: 4,
   preserveFormatting: true,
-  region: 'US',
-  role: 'admin',
-  format: 'INTERNATIONAL',
+  region: "US",
+  role: "admin",
+  format: "INTERNATIONAL",
   showFlag: true,
   encrypt: false,
   smartMode: true,
   customHooks: {
-    preValidation: (num) => console.log('Before Validation:', num),
-    postValidation: (num) => console.log('After Validation:', num)
+    preValidation: (num: string) => console.log("Before validation:", num),
+    postValidation: (num: string) => console.log("After validation:", num),
+    onFormatChange: (formatted: string) => console.log("Formatted:", formatted),
   },
   adaptiveSensitivity: true,
   detectAnomaly: true,
-  detectFraud: true
+  detectFraud: true,
 };
 ```
 
 ---
 
-## Conclusion
+## Common Use Cases
 
-The `MaskingOptions` interface provides comprehensive control over how phone numbers or sensitive data are masked and formatted. It supports advanced features like geolocation-based masking, role-based visibility, and AI-driven anomaly and fraud detection.
+Morphium is a strong fit for products that handle user contact data in sensitive environments, including:
 
-This flexible interface allows developers to implement complex masking rules while maintaining maintainable and readable code.
+* internal admin tools
+* support dashboards
+* CRMs and sales systems
+* fintech and compliance workflows
+* fraud and trust systems
+* healthcare and privacy-sensitive apps
+* customer data platforms
 
-Feel free to extend or modify it to suit your use case.
+---
 
+## Security Notes
 
+Morphium can help reduce accidental exposure of sensitive phone numbers, but it should still be used as part of a broader data protection strategy.
+
+A few good rules:
+
+* never hardcode secrets in source code
+* store encryption keys securely
+* reveal the minimum number of digits needed for the task
+* reserve full visibility for trusted roles only
+* log carefully and avoid leaking raw phone numbers in logs
+
+---
+
+## Development
+
+### Clone the repository
+
+```bash
+git clone https://github.com/maximcoding/morphium.git
+cd morphium
+```
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Run tests
+
+```bash
+npm test
+```
+
+---
+
+## Roadmap Ideas
+
+Potential areas to expand:
+
+* better package exports for direct npm usage
+* framework-specific integrations
+* stronger validation and normalization
+* improved docs and examples
+* more configurable policy presets
+* clearer separation between core and advanced masking features
+
+---
+
+## Contributing
+
+Contributions, bug reports, feature ideas, and pull requests are welcome.
+
+If you plan to contribute, please open an issue first so the scope is clear and the implementation stays aligned with the project direction.
 
 ---
 
 ## License
 
-This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com.
+This project includes GeoLite2 data created by MaxMind, available from MaxMind.
+
