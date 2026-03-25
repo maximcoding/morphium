@@ -4,6 +4,10 @@
 
 It is designed for products that need to balance **privacy**, **usability**, and **operational access**. Use it to safely display phone numbers, apply regional formatting, control visibility by role, and add advanced masking behavior when needed.
 
+Morphium currently supports Node.js and server-side TypeScript/JavaScript.
+
+The core masking and formatting logic is a good candidate for browser and React Native support, but the current package includes server-only features such as encryption, geolocation, and AI integrations.
+
 ## Why Morphium?
 
 Phone numbers show up everywhere: admin tools, support dashboards, CRMs, onboarding flows, fraud systems, and internal operations panels.
